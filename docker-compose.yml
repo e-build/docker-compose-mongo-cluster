@@ -1,0 +1,125 @@
+version: '3'
+services:
+
+  ## Config Servers
+  config01: # Host
+    image: mongo:4.2.12
+#    command: sh -c "mongod -f /etc/mongod.conf && sleep 20 && mongo --port 27017 < /scripts/init-configserver.js"
+    command: mongod -f /etc/mongod.conf
+    volumes:
+      - ./scripts:/scripts
+      - ./cluster/config01/data/configdb:/data/configdb
+      - ./cluster/config01/conf/mongod.conf:/etc/mongod.conf
+      - ./mongodb-key:/etc/mongodb-key
+  config02:
+    image: mongo:4.2.12
+    command: mongod -f /etc/mongod.conf
+    volumes:
+      - ./scripts:/scripts
+      - ./cluster/config02/data/configdb:/data/configdb
+      - ./cluster/config02/conf/mongod.conf:/etc/mongod.conf
+      - ./mongodb-key:/etc/mongodb-key
+  config03:
+    image: mongo:4.2.12
+    command: mongod -f /etc/mongod.conf
+    volumes:
+      - ./scripts:/scripts
+      - ./cluster/config03/data/configdb:/data/configdb
+      - ./cluster/config03/conf/mongod.conf:/etc/mongod.conf
+      - ./mongodb-key:/etc/mongodb-key
+
+  ## Shards
+  shard01a:
+    image: mongo:4.2.12
+    command: mongod -f /etc/mongod.conf
+    volumes:
+      - ./scripts:/scripts
+      - ./cluster/shard01a/data/db:/data/db
+      - ./cluster/shard01a/conf/mongod.conf:/etc/mongod.conf
+      - ./mongodb-key:/etc/mongodb-key
+  shard01b:
+    image: mongo:4.2.12
+    command: mongod -f /etc/mongod.conf
+    volumes:
+      - ./scripts:/scripts
+      - ./cluster/shard01b/data/db:/data/db
+      - ./cluster/shard01b/conf/mongod.conf:/etc/mongod.conf
+      - ./mongodb-key:/etc/mongodb-key
+  shard01c:
+    image: mongo:4.2.12
+    command: mongod -f /etc/mongod.conf
+    volumes:
+      - ./scripts:/scripts
+      - ./cluster/shard01c/data/db:/data/db
+      - ./cluster/shard01c/conf/mongod.conf:/etc/mongod.conf
+      - ./mongodb-key:/etc/mongodb-key
+  shard02a:
+    image: mongo:4.2.12
+    command: mongod -f /etc/mongod.conf
+    volumes:
+      - ./scripts:/scripts
+      - ./cluster/shard02a/data/db:/data/db
+      - ./cluster/shard02a/conf/mongod.conf:/etc/mongod.conf
+      - ./mongodb-key:/etc/mongodb-key
+  shard02b:
+    image: mongo:4.2.12
+    command: mongod -f /etc/mongod.conf
+    volumes:
+      - ./scripts:/scripts
+      - ./cluster/shard02b/data/db:/data/db
+      - ./cluster/shard02b/conf/mongod.conf:/etc/mongod.conf
+      - ./mongodb-key:/etc/mongodb-key
+  shard02c:
+    image: mongo:4.2.12
+    command: mongod -f /etc/mongod.conf
+    volumes:
+      - ./scripts:/scripts
+      - ./cluster/shard02c/data/db:/data/db
+      - ./cluster/shard02c/conf/mongod.conf:/etc/mongod.conf
+      - ./mongodb-key:/etc/mongodb-key
+#  shard03a:
+#    image: mongo:4.2.12
+#    command: mongod --port 27020 --shardsvr --replSet shard03-f /etc/mongod.conf  --oplogSize 16
+#    volumes:
+#      - ./scripts:/scripts
+#      - ./cluster/shard03a/data/db:/data/db
+#      - ./cluster/shard03a/conf/mongod.conf:/etc/mongod.conf
+#  shard03b:
+#    image: mongo:4.2.12
+#    command: mongod --port 27020 --shardsvr --replSet shard03-f /etc/mongod.conf  --oplogSize 16
+#    volumes:
+#      - ./scripts:/scripts
+#      - ./cluster/shard03b/data/db:/data/db
+#      - ./cluster/shard03b/conf/mongod.conf:/etc/mongod.conf
+#  shard03c:
+#    image: mongo:4.2.12
+#    command: mongod --port 27020 --shardsvr --replSet shard03-f /etc/mongod.conf  --oplogSize 16
+#    volumes:
+#      - ./scripts:/scripts
+#      - ./cluster/shard03c/data/db:/data/db
+#      - ./cluster/shard03c/conf/mongod.conf:/etc/mongod.conf
+
+  ## Router
+  router:
+    image: mongo:4.2.12
+    command: mongos -f /etc/mongod.conf
+    ports:
+      - "27017:27017"
+    volumes:
+      - ./scripts:/scripts
+      - ./cluster/router/data:/data
+      - ./cluster/router/conf/mongod.conf:/etc/mongod.conf
+      - ./mongodb-key:/etc/mongodb-key
+    depends_on:
+      - config01
+      - config02
+      - config03
+      - shard01a
+      - shard01b
+      - shard01c
+      - shard02a
+      - shard02b
+      - shard02c
+#      - shard03a
+#      - shard03b
+#      - shard03c
